@@ -47,6 +47,8 @@ public class HexDumpProxy {
 	private static String KEY_MANAGER_TYPE = "SunX509";
 	private static String TRUST_MANAGER_TYPE = "SunX509";
 	private static String PROTOCOL = "SSLv3";
+    public static String KEY_STORE_LOCATION;
+    public static String KEY_STORE_PASSWORD;
 
 	private static Logger logger = Logger.getLogger(HexDumpProxy.class.getName());
 
@@ -253,6 +255,11 @@ public class HexDumpProxy {
 			REMOTE_HOST = String.valueOf(prop.getProperty("remoteHost"));
 
 			REMOTE_PORT = Integer.parseInt(prop.getProperty("remotePort"));
+
+            KEY_STORE_LOCATION = String.valueOf(prop.getProperty("keystore"));
+
+            KEY_STORE_PASSWORD = String.valueOf(prop.getProperty("keystorepassword"));
+
 
 		} catch (IOException ex) {
 			ex.printStackTrace();
