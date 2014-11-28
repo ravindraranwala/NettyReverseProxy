@@ -24,13 +24,13 @@ public class KeyStoreLoader {
         try {
             KeyStore ks = KeyStore.getInstance("JKS");
 
-            FileInputStream fin = new FileInputStream("/home/isurur/Documents/training_ESB/Support/Fidelity_Issue/localhost.jks");
-            ks.load(fin,"localhost".toCharArray());
+            FileInputStream fin = new FileInputStream(HexDumpProxy.KEY_STORE_LOCATION);
+            ks.load(fin,HexDumpProxy.KEY_STORE_PASSWORD.toCharArray());
 
 
             // Set up key manager factory to use our key store
          kmf = KeyManagerFactory.getInstance(algorithm);
-            kmf.init(ks,"localhost".toCharArray());
+            kmf.init(ks,HexDumpProxy.KEY_STORE_PASSWORD.toCharArray());
 
             // Initialize the SSLContext to work with our key managers.
 //            serverContext = SSLContext.getInstance(PROTOCOL);
