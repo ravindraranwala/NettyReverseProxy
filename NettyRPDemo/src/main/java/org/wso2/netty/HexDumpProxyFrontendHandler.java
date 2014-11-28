@@ -8,9 +8,13 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
@@ -28,13 +32,21 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
 	public void channelActive(ChannelHandlerContext ctx) {
 		final Channel inboundChannel = ctx.channel();
 
+
 		// Start the connection attempt.
 		Bootstrap b = new Bootstrap();
-		b.group(inboundChannel.eventLoop()).channel(ctx.channel().getClass())
-		 .handler(new HexDumpProxyBackendHandler(inboundChannel))
+		//b.group(inboundChannel.eventLoop()).channel(ctx.channel().getClass())
+        b.group(new NioEventLoopGroup())
+                .channel(NioSocketChannel.class)
+		 .handler(new SecureChatClientInitializer(inboundChannel))
 		 .option(ChannelOption.AUTO_READ, false);
 		ChannelFuture f = b.connect(remoteHost, remotePort);
 		outboundChannel = f.channel();
+
+
+
+
+
 
 		/*
 		 * TODO: Use this to enable SSLcommunication between the proxy and the
