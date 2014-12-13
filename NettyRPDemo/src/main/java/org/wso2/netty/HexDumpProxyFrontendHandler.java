@@ -9,66 +9,35 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
 	private final String remoteHost;
 	private final int remotePort;
+	private final boolean isSecureBackend;
+	private final String trustStoreLocation;
+	private final String trustStorePassword;
 
 	private volatile Channel outboundChannel;
 
-	public HexDumpProxyFrontendHandler(String remoteHost, int remotePort) {
+	public HexDumpProxyFrontendHandler(String remoteHost, int remotePort, boolean isSecuredBackend,
+	                                   String trustStoreLocation, String trustStorePassword) {
 		this.remoteHost = remoteHost;
 		this.remotePort = remotePort;
+		this.isSecureBackend = isSecuredBackend;
+		this.trustStoreLocation = trustStoreLocation;
+		this.trustStorePassword = trustStorePassword;
 	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) {
 		final Channel inboundChannel = ctx.channel();
 
-
 		// Start the connection attempt.
 		Bootstrap b = new Bootstrap();
-		//b.group(inboundChannel.eventLoop()).channel(ctx.channel().getClass())
-        b.group(new NioEventLoopGroup())
-                .channel(NioSocketChannel.class)
-		 .handler(new SecureChatClientInitializer(inboundChannel))
+		// b.group(inboundChannel.eventLoop()).channel(ctx.channel().getClass())
+		b.group(new NioEventLoopGroup())
+		 .channel(NioSocketChannel.class)
+		 .handler(new SecureProxyInitializer(inboundChannel, isSecureBackend, trustStoreLocation,
+		                                     trustStorePassword))
 		 .option(ChannelOption.AUTO_READ, false);
 		ChannelFuture f = b.connect(remoteHost, remotePort);
 		outboundChannel = f.channel();
-
-
-
-
-
-
-		/*
-		 * TODO: Use this to enable SSLcommunication between the proxy and the
-		 * backend. Caution: This does NOT work properly. I have commented these
-		 * things since they were NOT working properly. You may uncomment it and
-		 * try to resolve the issue. Backend is called just using HTTP. There's
-		 * no SSL/TLS working for the moment. ESB acts as the SSL client. Please
-		 * note the use of newClientContext here.
-		 */
-
-		// SslContext sslCtx = null;
-		// try {
-		// sslCtx =
-		// SslContext.newClientContext(InsecureTrustManagerFactory.INSTANCE);
-		// } catch (SSLException e) {
-		// e.printStackTrace();
-		// }
-		// outboundChannel.pipeline().addLast(sslCtx.newHandler(outboundChannel.alloc(),
-		// remoteHost,
-		// remotePort));
-
-		/*
-		 * TODO: This is another alternative way of setting the SSL context
-		 * using the trust
-		 * store
-		 * and keystore. Caution: This also does NOT work at the moment.
-		 */
-
-		// SSLEngine sslEngine =
-		// HexDumpProxy.createSSLContext().createSSLEngine();
-		//
-		// sslEngine.setUseClientMode(true);
-		// outboundChannel.pipeline().addLast(new SslHandler(sslEngine));
 
 		f.addListener(new ChannelFutureListener() {
 			@Override
@@ -109,7 +78,11 @@ public class HexDumpProxyFrontendHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) {
 		if (outboundChannel != null) {
-			closeOnFlush(outboundChannel);
+			/*
+			 * Keeps the TCP connection alive. If you do not need that feature
+			 * please uncomment the following commented line of code.
+			 */
+			// closeOnFlush(outboundChannel);
 		}
 	}
 
