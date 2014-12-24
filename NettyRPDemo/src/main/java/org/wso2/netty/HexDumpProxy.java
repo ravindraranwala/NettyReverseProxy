@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 public class HexDumpProxy {
 	private static int LOCAL_PORT;
 	private static String REMOTE_HOST = null;
@@ -28,11 +30,12 @@ public class HexDumpProxy {
 
 	private static boolean SECURE_BACKEND;
 
+	private static final Logger LOGGER = Logger.getLogger(HexDumpProxy.class);
+
 	public static void main(String[] args) throws InterruptedException {
 		init();
 
-		System.err.println("Proxying *:" + LOCAL_PORT + " to " + REMOTE_HOST + ':' + REMOTE_PORT +
-		                   " ...");
+		LOGGER.info("Proxying *:" + LOCAL_PORT + " to " + REMOTE_HOST + ':' + REMOTE_PORT + " ...");
 
 		// Configure the bootstrap.
 		EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -86,13 +89,13 @@ public class HexDumpProxy {
 			SECURE_BACKEND = Boolean.parseBoolean(prop.getProperty("secureBackend"));
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			LOGGER.error("Exception was thrown while loading properties", ex);
 		} finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.error("Exception was thrown while closing the input stream", e);
 				}
 			}
 		}

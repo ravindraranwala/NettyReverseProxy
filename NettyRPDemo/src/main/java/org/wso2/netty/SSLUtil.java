@@ -14,6 +14,8 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.log4j.Logger;
+
 public class SSLUtil {
 	private static String KEY_STORE_TYPE = "JKS";
 	private static String TRUST_STORE_TYPE = "JKS";
@@ -23,6 +25,8 @@ public class SSLUtil {
 
 	private static SSLContext serverSSLCtx = null;
 	private static SSLContext clientSSLCtx = null;
+
+	private static final Logger LOGGER = Logger.getLogger(SSLUtil.class);
 
 	public static SSLContext createServerSSLContext(final String keyStoreLocation,
 	                                                final String keyStorePwd) {
@@ -37,19 +41,19 @@ public class SSLUtil {
 				serverSSLCtx.init(keyManagerFactory.getKeyManagers(), null, null);
 			}
 		} catch (UnrecoverableKeyException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the server SSL Context", e);
 		} catch (KeyManagementException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the server SSL Context", e);
 		} catch (KeyStoreException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the server SSL Context", e);
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the server SSL Context", e);
 		} catch (CertificateException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the server SSL Context", e);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the server SSL Context", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the server SSL Context", e);
 		}
 
 		return serverSSLCtx;
@@ -69,17 +73,17 @@ public class SSLUtil {
 				clientSSLCtx.init(null, trustManagerFactory.getTrustManagers(), null);
 			}
 		} catch (KeyManagementException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the client SSL Context", e);
 		} catch (KeyStoreException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the client SSL Context", e);
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the client SSL Context", e);
 		} catch (CertificateException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the client SSL Context", e);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the client SSL Context", e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("Exception was thrown while building the client SSL Context", e);
 		}
 
 		return clientSSLCtx;

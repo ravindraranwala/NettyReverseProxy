@@ -25,6 +25,8 @@ import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLEngine;
 
+import org.apache.log4j.Logger;
+
 /**
  * Creates a newly configured {@link io.netty.channel.ChannelPipeline} for a new
  * channel.
@@ -36,6 +38,8 @@ public class SecureProxyInitializer extends ChannelInitializer<SocketChannel> {
 	private final boolean isSecureBackend;
 	private final String trustStoreLocation;
 	private final String trustStorePassword;
+
+	private static final Logger LOGGER = Logger.getLogger(SecureProxyInitializer.class);
 
 	public SecureProxyInitializer(Channel inbound, boolean isSecureBackend,
 	                              String trustStoreLocation, String trustStorePassword) {
@@ -58,6 +62,8 @@ public class SecureProxyInitializer extends ChannelInitializer<SocketChannel> {
 		pipeline.addLast(new LoggingHandler(LogLevel.DEBUG));
 
 		if (isSecureBackend) {
+			LOGGER.info("Adding the SSL Handler to the pipeline");
+
 			SSLEngine engine =
 			                   SSLUtil.createClientSSLContext(trustStoreLocation,
 			                                                  trustStorePassword).createSSLEngine();
